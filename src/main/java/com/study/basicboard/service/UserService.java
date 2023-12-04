@@ -1,20 +1,33 @@
 package com.study.basicboard.service;
 
+import com.study.basicboard.domain.dto.UserCntDto;
 import com.study.basicboard.domain.dto.UserDto;
 import com.study.basicboard.domain.dto.UserJoinRequest;
+import com.study.basicboard.domain.entity.Comment;
+import com.study.basicboard.domain.entity.Like;
 import com.study.basicboard.domain.entity.User;
+import com.study.basicboard.domain.enum_class.UserRole;
+import com.study.basicboard.repository.CommentRepository;
+import com.study.basicboard.repository.LikeRepository;
 import com.study.basicboard.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder encoder;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     public BindingResult joinValid(UserJoinRequest req, BindingResult bindingResult) {
 
@@ -73,7 +86,58 @@ public class UserService {
         return bindingResult;
     }
 
+    @Transactional
+    public void edit(UserDto dto, String loginId) {
+        User loginUser = userRepository.findByLoginId(loginId).get();
 
+        //nickname만 바꿀 경우 password는 그대로 사용, 모두 바꿀 경우 데이터 모두 dto에서 추출
+        if (dto.getNewPassword().equals("")) {
+            loginUser.edit(loginUser.getPassword(), dto.getNickname());
+        } else {
+            loginUser.edit(encoder.encode(dto.getNewPassword()), dto.getNickname());
+        }
+    }
 
+    @Transactional
+    public Boolean delete(String loginId, String nowPassword) {
+        User loginUser = userRepository.findByLoginId(loginId).get();
 
+        if (encoder.matches(nowPassword, loginUser.getPassword())) {
+            List<Like> likes = likeRepository.findAllByUserLoginId(loginId);
+            for (Like like : likes) {
+                like.getBoard().likeChange(like.getBoard().getLikeCnt() - 1);
+            }
+
+            List<Comment> comments = commentRepository.findAllByUserLoginId(loginId);
+            for (Comment comment : comments) {
+                comment.getBoard().commentChange(comment.getBoard().getCommentCnt() - 1);
+            }
+
+            userRepository.delete(loginUser);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Page<User> findAllByNickname(String keyword, PageRequest pageRequest) {
+        return userRepository.findAllByNicknameContains(keyword, pageRequest);
+    }
+
+    @Transactional
+    public void changeRole(Long userId) {
+        User user = userRepository.findById(userId).get();
+        user.changeRole();
+    }
+
+    public UserCntDto getUserCnt() {
+        return UserCntDto.builder()
+                .totalUserCnt(userRepository.count())
+                .totalAdminCnt(userRepository.countAllByUserRole(UserRole.ADMIN))
+                .totalBronzeCnt(userRepository.countAllByUserRole(UserRole.BRONZE))
+                .totalSilverCnt(userRepository.countAllByUserRole(UserRole.SILVER))
+                .totalGoldCnt(userRepository.countAllByUserRole(UserRole.GOLD))
+                .totalBlacklistCnt(userRepository.countAllByUserRole(UserRole.GOLD.BLACKLIST))
+                .build();
+    }
 }
