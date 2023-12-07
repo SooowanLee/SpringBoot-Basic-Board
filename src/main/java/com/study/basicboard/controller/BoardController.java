@@ -126,7 +126,7 @@ public class BoardController {
     @PostMapping("/{category}/{boardId}/edit")
     public String boardEdit(@PathVariable String category, @PathVariable Long boardId,
                             @ModelAttribute BoardDto boardDto, Model model) throws IOException {
-        Long editedBoardId = boardService.eeditBoard(boardId, category, BoardDto.builder().build());
+        Long editedBoardId = boardService.editBoard(boardId, category, BoardDto.builder().build());
 
         if (editedBoardId == null) {
             model.addAttribute("message", "해당 게시글이 존재하지 않습니다.");
