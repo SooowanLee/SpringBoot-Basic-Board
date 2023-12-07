@@ -65,6 +65,7 @@ public class BoardService {
 
         Board savedBoard = boardRepository.save(req.toEntity(category, loginUser));
 
+        //이미지가 있다면 이미지 저장
         UploadImage uploadImage = uploadImageService.saveImage(req.getUploadImage(), savedBoard);
         if (uploadImage != null) {
             savedBoard.setUploadImage(uploadImage);
