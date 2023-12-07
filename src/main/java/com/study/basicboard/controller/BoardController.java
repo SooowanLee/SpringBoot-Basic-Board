@@ -10,14 +10,18 @@ import com.study.basicboard.service.CommentService;
 import com.study.basicboard.service.LikeService;
 import com.study.basicboard.service.UploadImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 @Controller
 @RequestMapping("/boards")
@@ -117,5 +121,48 @@ public class BoardController {
         model.addAttribute("commentCreateRequest", new CommentCreateRequest());
         model.addAttribute("commentList", commentService.findAll(boardId));
         return "boards/detail";
+    }
+
+    @PostMapping("/{category}/{boardId}/edit")
+    public String boardEdit(@PathVariable String category, @PathVariable Long boardId,
+                            @ModelAttribute BoardDto boardDto, Model model) throws IOException {
+        Long editedBoardId = boardService.eeditBoard(boardId, category, BoardDto.builder().build());
+
+        if (editedBoardId == null) {
+            model.addAttribute("message", "해당 게시글이 존재하지 않습니다.");
+            model.addAttribute("nextUrl", "/boards/" + category);
+        } else {
+            model.addAttribute("message", editedBoardId + "번 글이 수정되었습니다.");
+            model.addAttribute("nextUrl", "/boards/" + category + "/" + boardId);
+        }
+        return "printMessage";
+    }
+
+    @GetMapping("/{category}/{boardId}/delete")
+    public String boardDelete(@PathVariable String category, @PathVariable Long boardId, Model model) throws IOException {
+        if (category.equals("greeting")) {
+            model.addAttribute("message", "가입인사는 삭제할 수 없습니다.");
+            model.addAttribute("nextUrl", "/boards/greeting");
+            return "printMessage";
+        }
+
+        Long deletedBoardId = boardService.deleteBoard(boardId, category);
+
+        //id에 해당하는 게시글이 없거나 카테고리가 일치하지 않으면 에러 메세지 출력
+        //게시글이 존재해 삭제했으면 완료 메세지 출력
+        model.addAttribute("message", deletedBoardId == null ? "해당 게시글이 존재하지 않습니다." : deletedBoardId + "번 글이 삭제되었습니다.");
+        model.addAttribute("nextUrl", "/boards/" + category);
+        return "printMessage";
+    }
+
+    @ResponseBody
+    @GetMapping("/images/{filename}")
+    public Resource showImage(@PathVariable String filename) throws MalformedURLException {
+        return new UrlResource("file:" + uploadImageService.getFullPath(filename));
+    }
+
+    @GetMapping("/images/download/{boardId}")
+    public ResponseEntity<UrlResource> downloadImage(@PathVariable Long boardId) throws MalformedURLException {
+        return uploadImageService.downloadImage(boardId);
     }
 }
