@@ -18,7 +18,7 @@ public class BoardDto {
     private String title;
     private String body;
     private Integer likeCnt;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
     private MultipartFile newImage;
     private UploadImage uploadImage;
@@ -30,7 +30,7 @@ public class BoardDto {
                 .userNickname(board.getUser().getNickname())
                 .title(board.getTitle())
                 .body(board.getBody())
-                .createAt(board.getCreatedAt())
+                .createdAt(board.getCreatedAt())
                 .lastModifiedAt(board.getLastModifiedAt())
                 .likeCnt(board.getLikeCnt())
                 .uploadImage(board.getUploadImage())
