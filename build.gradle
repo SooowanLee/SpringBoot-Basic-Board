@@ -23,8 +23,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // DB
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'mysql:mysql-connector-java' // MySql
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
     // Thymeleaf, Validation
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
