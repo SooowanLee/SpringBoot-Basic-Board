@@ -28,7 +28,7 @@ public class MyLoginSuccessHandler implements AuthenticationSuccessHandler {
         User loginUser = userRepository.findByLoginId(authentication.getName()).get();
 
         //성공 시 메세지 출력 후 홈 화면으로 redirect
-        response.setContentType("text/html");
+        response.setContentType("text/html; charset=utf-8");
         PrintWriter pw = response.getWriter();
         if (loginUser.getUserRole().equals(UserRole.BLACKLIST)) {
             pw.println("<script>alert('" + loginUser.getNickname() + "님은 블랙리스트 입니다. 글, 댓글 작성이 불가능합니다.'); location.href='/';</script>");
