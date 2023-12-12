@@ -12,7 +12,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -33,16 +32,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .authorizeHttpRequests(
-                        httpRequest -> httpRequest
+                        authorize -> authorize
                                 .requestMatchers(anonymousUserUrl).anonymous()
                                 .requestMatchers(authenticatedUserUrl).authenticated()
-                                .requestMatchers(new AntPathRequestMatcher("/boards/greeting/write")).hasAnyAuthority("BRONZE", "ADMIN")
+                                .requestMatchers("/boards/greeting/write").hasAnyAuthority("BRONZE", "ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/boards/greeting").hasAnyAuthority("BRONZE", "ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/boards/free/write")).hasAnyAuthority("SILVER", "GOLD", "ADMIN")
+                                .requestMatchers("/boards/free/write").hasAnyAuthority("SILVER", "GOLD", "ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/boards/free").hasAnyAuthority("SILVER", "GOLD", "ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/boards/gold/**")).hasAnyAuthority("GOLD", "ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/users/admin/**")).hasAuthority("ADMIN")
-                                .requestMatchers(new AntPathRequestMatcher("/comments/**")).hasAnyAuthority("BRONZE", "SILVER", "GOLD", "ADMIN")
+                                .requestMatchers("/boards/gold/**").hasAnyAuthority("GOLD", "ADMIN")
+                                .requestMatchers("/users/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/comments/**").hasAnyAuthority("BRONZE", "SILVER", "GOLD", "ADMIN")
                                 .anyRequest().permitAll())
                 .exceptionHandling(
                         exceptionHandling -> exceptionHandling
@@ -55,7 +54,7 @@ public class SecurityConfig {
                                 .usernameParameter("loginId")   //로그인에 사용될 id
                                 .passwordParameter("password")  //로그인에 사용될 password
                                 .failureUrl("/users/login?fail")    //로그인에 실패 시 redirect 될 URL => 실패 메세지 출력
-                                .successHandler(new MyLoginSuccessHandler(userRepository))   //로그인 성공 시 실행 될 Handler
+                                .successHandler(new MyLoginSuccessHandler(userRepository))  //로그인 성공 시 실행 될 Handler
                 )
                 .logout(
                         logout -> logout
