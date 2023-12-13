@@ -34,11 +34,11 @@ public class BoardController {
     private final UploadImageService uploadImageService;
 
     @GetMapping("/{category}")
-    public String boardListPage(@PathVariable String category, Model model,
-                                @RequestParam(required = false, defaultValue = "1") int page,
-                                @RequestParam(required = false) String sortType,
-                                @RequestParam(required = false) String searchType,
-                                @RequestParam(required = false) String keyword) {
+    public String boardListPage(@PathVariable(name = "category") String category, Model model,
+                                @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                @RequestParam(required = false, name = "sortType") String sortType,
+                                @RequestParam(required = false, name = "searchType") String searchType,
+                                @RequestParam(required = false, name = "keyword") String keyword) {
         BoardCategory boardCategory = BoardCategory.of(category);
         if (boardCategory == null) {
             model.addAttribute("message", "카테고리가 존재하지 않습니다.");
@@ -66,7 +66,7 @@ public class BoardController {
     }
 
     @GetMapping("/{category}/write")
-    public String boardWritePage(@PathVariable String category, Model model) {
+    public String boardWritePage(@PathVariable(name = "category") String category, Model model) {
         BoardCategory boardCategory = BoardCategory.of(category);
         if (boardCategory == null) {
             model.addAttribute("message", "카테고리가 존재하지 않습니다.");
@@ -80,7 +80,7 @@ public class BoardController {
     }
 
     @PostMapping("/{category}")
-    public String boardWrite(@PathVariable String category, @ModelAttribute BoardCreateRequest req,
+    public String boardWrite(@PathVariable(name = "category") String category, @ModelAttribute BoardCreateRequest req,
                              Authentication auth, Model model) throws IOException {
         BoardCategory boardCategory = BoardCategory.of(category);
         if (boardCategory == null) {
@@ -100,7 +100,7 @@ public class BoardController {
     }
 
     @GetMapping("/{category}/{boardId}")
-    public String boardDetailPage(@PathVariable String category, @PathVariable Long boardId, Model model,
+    public String boardDetailPage(@PathVariable(name = "category") String category, @PathVariable(name = "boardId") Long boardId, Model model,
                                   Authentication auth) {
         if (auth != null) {
             model.addAttribute("loginUserLoginId", auth.getName());
@@ -124,9 +124,9 @@ public class BoardController {
     }
 
     @PostMapping("/{category}/{boardId}/edit")
-    public String boardEdit(@PathVariable String category, @PathVariable Long boardId,
-                            @ModelAttribute BoardDto boardDto, Model model) throws IOException {
-        Long editedBoardId = boardService.editBoard(boardId, category, BoardDto.builder().build());
+    public String boardEdit(@PathVariable(name = "category") String category, @PathVariable(name = "boardId") Long boardId,
+                            @ModelAttribute BoardDto dto, Model model) throws IOException {
+        Long editedBoardId = boardService.editBoard(boardId, category, dto);
 
         if (editedBoardId == null) {
             model.addAttribute("message", "해당 게시글이 존재하지 않습니다.");
@@ -139,7 +139,7 @@ public class BoardController {
     }
 
     @GetMapping("/{category}/{boardId}/delete")
-    public String boardDelete(@PathVariable String category, @PathVariable Long boardId, Model model) throws IOException {
+    public String boardDelete(@PathVariable(name = "category") String category, @PathVariable(name = "boardId") Long boardId, Model model) throws IOException {
         if (category.equals("greeting")) {
             model.addAttribute("message", "가입인사는 삭제할 수 없습니다.");
             model.addAttribute("nextUrl", "/boards/greeting");
@@ -157,12 +157,12 @@ public class BoardController {
 
     @ResponseBody
     @GetMapping("/images/{filename}")
-    public Resource showImage(@PathVariable String filename) throws MalformedURLException {
+    public Resource showImage(@PathVariable(name = "filename") String filename) throws MalformedURLException {
         return new UrlResource("file:" + uploadImageService.getFullPath(filename));
     }
 
     @GetMapping("/images/download/{boardId}")
-    public ResponseEntity<UrlResource> downloadImage(@PathVariable Long boardId) throws MalformedURLException {
+    public ResponseEntity<UrlResource> downloadImage(@PathVariable(name = "boardId") Long boardId) throws MalformedURLException {
         return uploadImageService.downloadImage(boardId);
     }
 }

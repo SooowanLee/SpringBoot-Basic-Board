@@ -63,8 +63,8 @@ public class UserController {
     }
 
     @GetMapping("/myPage/{category}")
-    public String myPage(@PathVariable String category, Authentication auth, Model model) {
-        model.addAttribute("board", boardService.findMyBoard(category, auth.getName()));
+    public String myPage(@PathVariable(name = "category") String category, Authentication auth, Model model) {
+        model.addAttribute("boards", boardService.findMyBoard(category, auth.getName()));
         model.addAttribute("category", category);
         model.addAttribute("user", userService.myInfo(auth.getName()));
 

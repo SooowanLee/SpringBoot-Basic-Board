@@ -18,13 +18,13 @@ public class LikeController {
     private final BoardService boardService;
 
     @GetMapping("/add/{boardId}")
-    public String addLike(@PathVariable Long boardId, Authentication auth) {
+    public String addLike(@PathVariable(name = "boardId") Long boardId, Authentication auth) {
         likeService.addLike(auth.getName(), boardId);
         return "redirect:/boards/" + boardService.getCategory(boardId) + "/" + boardId;
     }
 
     @GetMapping("/delete/{boardId}")
-    public String deleteLike(@PathVariable Long boardId, Authentication auth) {
+    public String deleteLike(@PathVariable(name = "boardId") Long boardId, Authentication auth) {
         likeService.deleteLike(auth.getName(), boardId);
         return "redirect:/boards/" + boardService.getCategory(boardId) + "/" + boardId;
     }

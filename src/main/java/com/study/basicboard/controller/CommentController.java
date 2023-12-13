@@ -18,7 +18,7 @@ public class CommentController {
     private final BoardService boardService;
 
     @PostMapping("/{boardId}")
-    public String addComment(@PathVariable Long boardId, @ModelAttribute CommentCreateRequest req,
+    public String addComment(@PathVariable(name = "boardId") Long boardId, @ModelAttribute CommentCreateRequest req,
                              Authentication auth, Model model) {
 
         commentService.writeComment(boardId, req, auth.getName());
@@ -30,7 +30,7 @@ public class CommentController {
     }
 
     @PostMapping("/{commentId}/edit")
-    public String editComment(@PathVariable Long commentId, @ModelAttribute CommentCreateRequest req,
+    public String editComment(@PathVariable(name = "commentId") Long commentId, @ModelAttribute CommentCreateRequest req,
                               Authentication auth, Model model) {
         Long boardId = commentService.editComment(commentId, req.getBody(), auth.getName());
         model.addAttribute("message", boardId == null ? "잘못된 요청입니다." : "댓글이 수정 되었습니다.");
@@ -39,11 +39,11 @@ public class CommentController {
     }
 
     @GetMapping("/{commentId}/delete")
-    public String deleteComment(@PathVariable Long commentId, Authentication auth, Model model) {
+    public String deleteComment(@PathVariable(name = "commentId") Long commentId, Authentication auth, Model model) {
         Long boardId = commentService.deleteComment(commentId, auth.getName());
 
         model.addAttribute("message", boardId == null ? "작성자만 삭제 가능합니다." : "댓글이 삭제 되었습니다.");
         model.addAttribute("nextUrl", "/boards/" + boardService.getCategory(boardId) + "/" + boardId);
-        return "pringMessage";
+        return "printMessage";
     }
 }
