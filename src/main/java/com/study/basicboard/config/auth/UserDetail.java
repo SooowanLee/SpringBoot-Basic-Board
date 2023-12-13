@@ -22,10 +22,8 @@ public class UserDetail implements UserDetails {
     //계정이 가지고 있는 권한 목록 return
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(() -> {
-            return user.getUserRole().toString();
-        });
+        Collection<GrantedAuthority> collection = new ArrayList();
+        collection.add(() -> user.getUserRole().toString());
         return collection;
     }
 
@@ -47,13 +45,19 @@ public class UserDetail implements UserDetails {
 
     // 계정이 잠겼는지 (true : 잠김 X)
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     // 비밀번호가 만료되었는지 (ture: 만료 X)
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     // 계정이 활성화(사용 가능)인지 (true: 활성화)
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 }
